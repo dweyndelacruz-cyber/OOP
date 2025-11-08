@@ -1,0 +1,18 @@
+@inherits LayoutComponentBase
+
+<div class="sidebar">
+    <h2>Admin Dashboard</h2>
+    <nav>
+        <ul>
+            <li><NavLink href="/home" Match="NavLinkMatch.All">🏠 Home</NavLink></li>
+            <li><NavLink href="/orders">📦 Orders</NavLink></li>
+            <li><NavLink href="/feedback">💬 Feedback</NavLink></li>
+            <li><NavLink class="nav-link" href="/order-history"><span class="oi oi-list-rich" aria-hidden="true"></span> Order History</NavLink></li>
+            <li><NavLink href="/about">💬 About Us</NavLink></li>
+        </ul>
+    </nav>
+</div>
+
+<main class="main-content">
+    @Body
+</main>

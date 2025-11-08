@@ -1,0 +1,192 @@
+@page "/admin/feedback"
+@namespace Finals.Components.Pages.Admin
+@layout Finals.Components.AdminLayout.AdminLayout
+@inject NavigationManager Navigation
+
+<div class="feedback-container">
+    <h2 class="page-title">💬 Customer Feedback</h2>
+
+    <div class="star-filter">
+        <button class="@(selectedStar == 0 ? "active" : "")" @onclick="() => FilterReviews(0)">All ⭐</button>
+        <button class="@(selectedStar == 5 ? "active" : "")" @onclick="() => FilterReviews(5)">⭐5</button>
+        <button class="@(selectedStar == 4 ? "active" : "")" @onclick="() => FilterReviews(4)">⭐4</button>
+        <button class="@(selectedStar == 3 ? "active" : "")" @onclick="() => FilterReviews(3)">⭐3</button>
+        <button class="@(selectedStar == 2 ? "active" : "")" @onclick="() => FilterReviews(2)">⭐2</button>
+        <button class="@(selectedStar == 1 ? "active" : "")" @onclick="() => FilterReviews(1)">⭐1</button>
+    </div>
+
+    <div class="reviews">
+        @if (filteredReviews != null && filteredReviews.Any())
+        {
+            @foreach (var review in filteredReviews)
+            {
+                <div class="review-card">
+                    <h4>@review.Author</h4>
+                    <p>"@review.Comment"</p>
+                    <div class="rating" @onclick="() => FilterReviews(review.Star)">⭐ @review.Star</div>
+                </div>
+            }
+        }
+        else
+        {
+            <p class="no-reviews">No reviews found for this rating.</p>
+        }
+    </div>
+</div>
+
+@code {
+    private int selectedStar = 0;
+
+    private class Review
+    {
+        public string Author { get; set; } = "";
+        public string Comment { get; set; } = "";
+        public int Star { get; set; }
+    }
+
+    private List<Review> allReviews = new()
+    {
+        new Review { Author = "Anna", Comment = "Amazing water delivery! Always on time!", Star = 5 },
+        new Review { Author = "Mark", Comment = "Fantastic service and clean water!", Star = 5 },
+        new Review { Author = "Ella", Comment = "Very good experience!", Star = 4 },
+        new Review { Author = "Tom", Comment = "Delivery was okay, packaging could improve.", Star = 3 },
+        new Review { Author = "Cathy", Comment = "Not bad but delivery was a bit late.", Star = 3 },
+        new Review { Author = "Rico", Comment = "The bottle was slightly damaged.", Star = 2 },
+        new Review { Author = "Marie", Comment = "Terrible experience, never again.", Star = 1 },
+    };
+
+    private List<Review> filteredReviews = new();
+
+    protected override void OnInitialized()
+    {
+        filteredReviews = new(allReviews);
+    }
+
+    private void FilterReviews(int star)
+    {
+        selectedStar = star;
+
+        if (star == 0)
+            filteredReviews = new(allReviews);
+        else
+            filteredReviews = allReviews.Where(r => r.Star == star).ToList();
+
+        StateHasChanged();
+    }
+}
+
+<style>
+.feedback-container {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 2rem;
+    text-align: center;
+    color: white;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    background-image: url('/images/water-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.page-title {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    color: white;
+}
+
+.star-filter {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    margin-bottom: 2rem;
+    width: 90%;
+    max-width: 1000px;
+}
+
+.star-filter button {
+    background: linear-gradient(135deg, #0b63c5, #1e90ff);
+    border: none;
+    color: white;
+    padding: 0.7rem 1rem;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.star-filter button:hover {
+    transform: scale(1.05);
+    background: #1e90ff;
+}
+
+.star-filter button.active {
+    background: #063970;
+    box-shadow: 0 0 10px rgba(6, 57, 112, 0.8);
+}
+
+.reviews {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+    width: 90%;
+    max-width: 1000px;
+}
+
+.review-card {
+    background: rgba(255,255,255,0.95);
+    color: #063970;
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    width: 100%;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    text-align: left;
+    transition: transform 0.2s;
+}
+
+.review-card:hover {
+    transform: scale(1.03);
+}
+
+.review-card h4 {
+    margin-bottom: 0.4rem;
+    color: #063970;
+}
+
+.rating {
+    color: #ffcc00;
+    margin-top: 0.3rem;
+    cursor: pointer;
+}
+
+.no-reviews {
+    font-style: italic;
+    color: #e0f1ff;
+}
+
+@@media (max-width: 768px) {
+    .search-row {
+        flex-direction: column;
+    }
+    
+    .search-field {
+        min-width: 100%;
+    }
+    
+    .order-table {
+        font-size: 0.8rem;
+    }
+    
+    .order-table th, .order-table td {
+        padding: 0.5rem;
+    }
+}
+</style>

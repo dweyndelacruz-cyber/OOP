@@ -1,0 +1,37 @@
+@namespace Finals.Components.CustomerLayout
+@using Microsoft.AspNetCore.Components.Routing
+@inherits LayoutComponentBase
+@inject NavigationManager Navigation
+
+<div class="customer-layout-root">
+    <aside class="customer-sidebar">
+        <div class="brand">
+            <h2>Customer</h2>
+        </div>
+
+        <nav>
+            <ul>
+                <li><NavLink href="/customer" Match="NavLinkMatch.All">🏠 Home</NavLink></li>
+                <li><NavLink href="/customer/order-place">🛒 Place Order</NavLink></li>
+                <li><NavLink href="/customer/order-history">📜 Order History</NavLink></li>
+                <li><NavLink href="/customer/feedback">💬 Feedback</NavLink></li>
+                <li><NavLink href="/customer/about">ℹ️ About Us</NavLink></li>
+            </ul>
+        </nav>
+
+        <div class="layout-footer">
+            <button class="logout-btn" @onclick="Logout">Logout</button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        @Body
+    </main>
+</div>
+
+@code {
+    private void Logout()
+    {
+        Navigation.NavigateTo("/login", replace: true);
+    }
+}

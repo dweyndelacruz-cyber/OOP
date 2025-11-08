@@ -1,0 +1,18 @@
+@page "/_Host"
+@namespace Finals.Pages
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@using Finals
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <base href="~/" />
+  <title>Finals</title>
+  <link href="css/site.css" rel="stylesheet" />
+</head>
+<body>
+  <component type="typeof(Finals.App)" render-mode="ServerPrerendered" />
+  <script src="_framework/blazor.server.js"></script>
+</body>
+</html>
