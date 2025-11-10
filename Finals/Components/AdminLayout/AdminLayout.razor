@@ -1,44 +1,78 @@
 @namespace Finals.Components.AdminLayout
 @using Microsoft.AspNetCore.Components.Routing
+@inject NavigationManager NavigationManager
+@inject Finals.Services.AuthService AuthService
 @inherits LayoutComponentBase
-@inject NavigationManager Navigation
 
-<div class="admin-layout-root">
-    <aside class="admin-sidebar">
-        <div class="brand">
-            <h2>Admin Dashboard</h2>
-        </div>
-
+<div class="dashboard-layout">
+    <aside class="sidebar">
+        <h2 class="logo">💧 Water Station Online Appointment</h2>
         <nav>
-            <ul>
-                <li><NavLink href="/admin" Match="NavLinkMatch.All">🏠 Home</NavLink></li>
-                <li><NavLink href="/orders">📦 Orders</NavLink></li>
-                <li><NavLink href="/feedback">💬 Feedback</NavLink></li>
-                <li><NavLink href="/order-history">📜 Order History</NavLink></li>
-                <li><NavLink href="/admin/about">ℹ️ About Us</NavLink></li>
-            </ul>
+            <a href="/admin" class="nav-link @(IsActive("/admin") ? "active" : "")">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a href="/admin/order" class="nav-link @(IsActive("/admin/order") ? "active" : "")">
+                <i class="fas fa-box"></i> Orders
+            </a>
+            <a href="/admin/order-history" class="nav-link @(IsActive("/admin/order-history") ? "active" : "")">
+                <i class="fas fa-history"></i> Order History
+            </a>
+            <a href="/admin/feedback" class="nav-link @(IsActive("/admin/feedback") ? "active" : "")">
+                <i class="fas fa-star"></i> Feedback
+            </a>
+            <a href="/admin/about" class="nav-link @(IsActive("/admin/about") ? "active" : "")">
+                <i class="fas fa-info-circle"></i> About Us
+            </a>
         </nav>
-
-        <div class="layout-footer">
-            <button class="logout-btn" @onclick="Logout">Logout</button>
+        
+        <!-- Logout button positioned at bottom for admin layout -->
+        <div class="logout-container" style="padding: 1rem;">
+            <button class="logout-btn" @onclick="Logout">
+                <i class="fas fa-sign-out-alt"></i> Log Out
+            </button>
         </div>
     </aside>
 
     <main class="main-content">
-        @Body
+        <div class="background-overlay"></div>
+        <div class="page-container">
+            @Body
+        </div>
     </main>
 </div>
 
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+
 @code {
+    private string CurrentUri => NavigationManager.Uri.Replace(NavigationManager.BaseUri, "/");
+
+    private bool IsActive(string href)
+    {
+        // Get the current path without the leading slash for accurate comparison
+        var currentPath = CurrentUri.TrimStart('/').ToLowerInvariant();
+        var linkPath = href.TrimStart('/').ToLowerInvariant();
+        
+        // Exact match (e.g., /admin)
+        if (currentPath == linkPath)
+            return true;
+        
+        // Handle the base path when on a sub-route (e.g., /admin is active for /admin/order)
+        if (linkPath == "admin" && currentPath.StartsWith("admin/"))
+            return true;
+        
+        // Direct prefix match for deeper subpages (e.g., /admin/order matches /admin/order/details)
+        return currentPath.StartsWith(linkPath + "/", StringComparison.OrdinalIgnoreCase);
+    }
+
     private void Logout()
     {
-        Navigation.NavigateTo("/login", replace: true);
+        AuthService.SignOut();
+        NavigationManager.NavigateTo("/login", replace: true);
     }
 }
 
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
-
 <style>
+/* --- Admin Layout Styles (Design Preserved) --- */
 html, body {
     margin: 0;
     padding: 0;
@@ -47,7 +81,7 @@ html, body {
     overflow: hidden;
 }
 
-.admin-layout-root {
+.dashboard-layout {
     display: flex;
     width: 100vw;
     height: 100vh;
@@ -60,7 +94,7 @@ html, body {
     overflow: hidden;
 }
 
-.admin-sidebar {
+.sidebar {
     width: 250px;
     background: linear-gradient(180deg, #063970 0%, #01254e 100%);
     color: white;
@@ -74,7 +108,7 @@ html, body {
     overflow-y: auto;
 }
 
-.brand {
+.logo {
     font-size: 1.6rem;
     font-weight: 700;
     text-align: center;
@@ -86,30 +120,6 @@ nav {
     display: flex;
     flex-direction: column;
     gap: 1rem;
-}
-
-nav ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-}
-
-nav li {
-    margin: 0;
-}
-
-.logout-btn {
-    background-color: #d9534f;
-    color: white;
-    border: none;
-    padding: 0.8rem 1.2rem;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.logout-btn:hover {
-    background-color: #c9302c;
 }
 
 .nav-link {
@@ -151,11 +161,11 @@ nav li {
     padding: 0;
     width: calc(100vw - 250px);
     height: 100vh;
-    background: white; /* ← ADD THIS */
+    background: white; /* Original Design */
 }
 
 .background-overlay {
-    background-image: url('https://learnandsupport.getolympus.com/sites/default/files/styles/hero_large/public/2020-10/amico_-_water_droplets_1.jpg?itok=kJ972xkJ');
+    background-image: url('https://learnandsupport.getolympus.com/sites/default/files/styles/hero_large/public/2020-10/amico_-_water_droplets_1.jpg?itok=kJ972xkJ'); /* Original Design */
     background-size: cover;
     background-position: center;
     filter: blur(3px) brightness(0.95);
@@ -188,5 +198,42 @@ nav li {
 
 * {
     box-sizing: border-box;
+}
+
+/* Logout button styles inherited/added for consistency */
+.logout-container {
+    margin-top: auto;
+    display: flex;
+    justify-content: center;
+}
+
+.logout-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    background: rgba(255, 255, 255, 0.1);
+    color: #e0f1ff;
+    border: none;
+    font-weight: 500;
+    padding: 0.8rem 1.5rem;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    max-width: 180px;
+    font-size: 1rem;
+    font-family: 'Poppins', sans-serif;
+}
+
+.logout-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.logout-btn i {
+    font-size: 1.1rem;
 }
 </style>

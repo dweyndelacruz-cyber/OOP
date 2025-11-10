@@ -1,0 +1,444 @@
+@page "/"
+@page "/login"
+@inject NavigationManager Navigation
+@inject main.Services.IAuthService AuthService
+@layout main.Components.LSLayout.EmptyLayout
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+        background: url('https://learnandsupport.getolympus.com/sites/default/files/styles/hero_large/public/2020-10/amico_-_water_droplets_1.jpg?itok=kJ972xkJ') no-repeat center center fixed;
+        background-size: cover;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+    }
+
+    .login-container {
+        display: flex;
+        max-width: 1000px;
+        width: 100%;
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        border-radius: 15px;
+        overflow: hidden;
+        margin: auto;
+    }
+
+    .brand-section {
+        flex: 1;
+        background: linear-gradient(135deg, rgba(6, 57, 112, 0.9), rgba(4, 33, 74, 0.9));
+        color: white;
+        padding: 60px 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .brand-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('https://learnandsupport.getolympus.com/sites/default/files/styles/hero_large/public/2020-10/amico_-_water_droplets_1.jpg?itok=kJ972xkJ') no-repeat center center;
+        background-size: cover;
+        opacity: 0.15;
+        z-index: 0;
+    }
+
+    .brand-content {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: 100%;
+    }
+
+    .brand-title {
+        font-size: 42px;
+        font-weight: 800;
+        line-height: 1.1;
+        margin-bottom: 20px;
+        letter-spacing: 0.5px;
+    }
+
+    .brand-subtitle {
+        font-size: 20px;
+        opacity: 0.95;
+        font-weight: 600;
+        letter-spacing: 0.8px;
+        color: #a8d8ff;
+        margin-bottom: 30px;
+    }
+
+    .brand-tagline {
+        font-size: 16px;
+        opacity: 0.8;
+        font-style: italic;
+        line-height: 1.5;
+        border-left: 3px solid #a8d8ff;
+        padding-left: 15px;
+        margin-top: 30px;
+    }
+
+    .form-section {
+        flex: 1;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 60px 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .form-header {
+        margin-bottom: 30px;
+    }
+
+    .form-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #04214a;
+        margin-bottom: 5px;
+    }
+
+    .form-subtitle {
+        color: #666;
+        font-size: 14px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #333;
+        font-size: 14px;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #e1e5e9;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: border-color 0.3s;
+    }
+
+    .form-select {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #e1e5e9;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: border-color 0.3s;
+        appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23003366'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 0.7rem top 50%;
+        background-size: 1rem;
+        cursor: pointer;
+    }
+
+    .form-input:focus, .form-select:focus {
+        outline: none;
+        border-color: #063970;
+    }
+
+    .forgot-password {
+        text-align: right;
+        margin-top: -10px;
+        margin-bottom: 20px;
+    }
+
+    .forgot-password a {
+        color: #063970;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .forgot-password a:hover {
+        text-decoration: underline;
+    }
+
+    .login-btn {
+        width: 100%;
+        padding: 14px;
+        background: #063970;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.3s;
+        margin-top: 10px;
+    }
+
+    .login-btn:hover:not(:disabled) {
+        background: #04214a;
+    }
+
+    .login-btn:disabled {
+        background: #cccccc;
+        cursor: not-allowed;
+    }
+
+    .switch-link {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 14px;
+    }
+
+    .switch-link a {
+        color: #063970;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .switch-link a:hover {
+        text-decoration: underline;
+    }
+
+    /* Error message styles */
+    .error-message {
+        background-color: #fee;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+        padding: 12px 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        animation: fadeIn 0.3s ease-in;
+    }
+
+    .error-icon {
+        font-size: 16px;
+        flex-shrink: 0;
+    }
+
+    .shake {
+        animation: shake 0.5s ease-in-out;
+    }
+
+    .input-error {
+        border-color: #dc3545 !important;
+    }
+
+    @@keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @@keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+    }
+
+    @@media (max-width: 768px) {
+        .login-container {
+            flex-direction: column;
+        }
+        
+        .brand-section {
+            padding: 40px 20px;
+            text-align: center;
+        }
+        
+        .form-section {
+            padding: 40px 20px;
+        }
+
+        .brand-title {
+            font-size: 32px;
+        }
+
+        .brand-subtitle {
+            font-size: 18px;
+        }
+    }
+</style>
+
+<div class="login-container">
+    <!-- Left Brand Section -->
+    <div class="brand-section">
+        <div class="brand-content">
+            <div class="brand-title">
+                Water Station<br />
+                Online Appointment
+            </div>
+            <div class="brand-subtitle">Pure Water, Pure Life</div>
+            <div class="brand-tagline">
+                Your trusted partner for clean, refreshing water delivered right to your doorstep
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Form Section -->
+    <div class="form-section">
+        <div class="form-header">
+            <h2 class="form-title">Login</h2>
+            <div class="form-subtitle">Access your account</div>
+        </div>
+
+        <!-- Error Message -->
+        @if (ShowError)
+        {
+            <div class="error-message @(ShouldShake ? "shake" : "")">
+                <span class="error-icon">⚠️</span>
+                <span>@ErrorMessage</span>
+            </div>
+        }
+
+        <div class="form-group">
+            <label class="form-label">Log in as</label>
+            <select class="form-select @(ShowError ? "input-error" : "")" @bind="SelectedRole">
+                <option value="Customer">Customer</option>
+                <option value="Admin">Admin</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Username</label>
+            <input class="form-input @(ShowError ? "input-error" : "")" 
+                   type="text" @bind="Username" @oninput="ClearError" 
+                   @onkeypress="HandleKeyPress" placeholder="Enter your username" />
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Password</label>
+            <input class="form-input @(ShowError ? "input-error" : "")" 
+                   type="password" @bind="Password" @oninput="ClearError" 
+                   @onkeypress="HandleKeyPress" placeholder="Enter your password" />
+        </div>
+
+        <div class="forgot-password">
+            <a href="#" @onclick="HandleForgotPassword">Forgot password?</a>
+        </div>
+        
+        <button class="login-btn" @onclick="HandleLogin" disabled="@IsLoading">
+            @if (IsLoading)
+            {
+                <span>Logging in...</span>
+            }
+            else
+            {
+                <span>Login</span>
+            }
+        </button>
+        
+        <div class="switch-link">
+            Don't have an account? <a href="/signup">Create account</a>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string SelectedRole { get; set; } = "Customer";
+    private string Username { get; set; } = "";
+    private string Password { get; set; } = "";
+    private string ErrorMessage { get; set; } = "";
+    private bool ShowError { get; set; } = false;
+    private bool ShouldShake { get; set; } = false;
+    private bool IsLoading { get; set; } = false;
+
+    private async Task HandleLogin()
+    {
+        // Clear errors
+        ShowError = false;
+        ShouldShake = false;
+        IsLoading = true;
+        StateHasChanged();
+
+        // Simple validation
+        if (string.IsNullOrWhiteSpace(Username) || string.IsNullOrWhiteSpace(Password))
+        {
+            ErrorMessage = "Please enter both username and password";
+            ShowError = true;
+            ShouldShake = true;
+            IsLoading = false;
+            StateHasChanged();
+            return;
+        }
+
+        try
+        {
+            Console.WriteLine($"🔄 Login attempt - Username: {Username}, Role: {SelectedRole}");
+            
+            var user = await AuthService.LoginUserAsync(Username, Password, SelectedRole);
+
+            if (user != null)
+            {
+                Console.WriteLine($"✅ LOGIN SUCCESS - Redirecting {user.Role} to dashboard");
+                
+                // SUCCESS - redirect immediately
+                if (user.Role == "Admin")
+                {
+                    Navigation.NavigateTo("/admin/home", forceLoad: true);
+                }
+                else
+                {
+                    Navigation.NavigateTo("/customer/home", forceLoad: true);
+                }
+            }
+            else
+            {
+                ErrorMessage = "Invalid login credentials";
+                ShowError = true;
+                ShouldShake = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = "Login error: " + ex.Message;
+            ShowError = true;
+            ShouldShake = true;
+        }
+
+        IsLoading = false;
+        StateHasChanged();
+    }
+
+    private void HandleForgotPassword()
+    {
+        // TODO: Implement
+        Console.WriteLine("Forgot password clicked");
+    }
+
+    private void ClearError()
+    {
+        if (ShowError)
+        {
+            ShowError = false;
+            StateHasChanged();
+        }
+    }
+
+    private void HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            HandleLogin();
+        }
+    }
+}

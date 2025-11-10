@@ -1,13 +1,35 @@
 @namespace Finals
 @using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Authorization
+@using Finals.Components.LSLayout
+@inject NavigationManager NavigationManager
 
-<Router AppAssembly="@typeof(Finals.App).Assembly">
-  <Found Context="routeData">
-    <RouteView RouteData="@routeData" DefaultLayout="@typeof(Finals.MainLayout)" />
-  </Found>
-  <NotFound>
-    <LayoutView Layout="@typeof(Finals.MainLayout)">
-      <p>Sorry, there's nothing at this address.</p>
-    </LayoutView>
-  </NotFound>
-</Router>
+<CascadingAuthenticationState>
+    <Router AppAssembly="@typeof(App).Assembly">
+        <Found Context="routeData">
+            
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(LSLayout)">
+                
+                <Authorizing>
+                    <LayoutView Layout="@typeof(LSLayout)">
+                        <p>Loading...</p>
+                    </LayoutView>
+                </Authorizing>
+                
+                <NotAuthorized>
+                    @{
+                        // Redirect to Login if the user is not authorized
+                        NavigationManager.NavigateTo($"/login?returnUrl={NavigationManager.ToBaseRelativePath(NavigationManager.Uri)}", replace: true);
+                    }
+                </NotAuthorized>
+                
+            </AuthorizeRouteView>
+            
+        </Found>
+        <NotFound>
+            <LayoutView Layout="@typeof(LSLayout)">
+                <p>Sorry, there's nothing at this address.</p>
+            </LayoutView>
+        </NotFound>
+    </Router>
+</CascadingAuthenticationState>

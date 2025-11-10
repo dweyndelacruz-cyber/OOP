@@ -1,10 +1,14 @@
 @page "/"
 @page "/login"
 @inject NavigationManager Navigation
-@layout Finals.Components.LSLayout.EmptyLayout
+@layout Finals.Components.LSLayout.LSLayout @* FIXED: Changed from EmptyLayout to the existing LSLayout component *@
 @inject Finals.Services.AuthService AuthService
 
 <style>
+/* The following CSS block is preserved exactly as provided in the user query.
+    Note: For Blazor Server, the body styling should ideally be in a global CSS file, 
+    but it is kept here to honor the user's provided code structure.
+*/
     * {
         margin: 0;
         padding: 0;
@@ -211,6 +215,16 @@
         text-decoration: underline;
     }
 
+    .error-message {
+        background-color: #f8d7da;
+        color: #721c24;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        text-align: center;
+        border: 1px solid #f5c6cb;
+    }
+
     @@media (max-width: 768px) {
         .login-container {
             flex-direction: column;
@@ -257,22 +271,12 @@
             <div class="form-subtitle">Access your account</div>
         </div>
         
-    <style>
-    .form-header {
-    text-align: center;
-    margin-bottom: 2rem;
-    }
-
-    .form-title {
-    margin-bottom: 0.5rem;
-    color: #333;
-    }
-
-    .form-subtitle {
-    color: #666;
-    font-size: 0.9rem;
-    }
-    </style>
+        @if (!string.IsNullOrEmpty(LoginError))
+        {
+            <div class="error-message">
+                @LoginError
+            </div>
+        }
 
         <div class="form-row">
             <div class="form-group">
@@ -295,7 +299,7 @@
         </div>
 
         <div class="forgot-password">
-            <a href="#" @onclick="HandleForgotPassword">Forgot password?</a>
+            <a href="#" @onclick="HandleForgotPassword" @onclick:preventDefault>Forgot password?</a>
         </div>
         <button class="login-btn" @onclick="HandleLogin">Login</button>
         <div class="switch-link">
@@ -310,21 +314,55 @@
     private bool LoginAsAdmin { get; set; } = false;
     private string LoginError { get; set; } = "";
 
+    protected override void OnInitialized()
+    {
+        // If already authenticated in this scoped service, redirect to proper area
+        if (AuthService.CurrentUser != null)
+        {
+            if (AuthService.CurrentUser.IsAdmin)
+                Navigation.NavigateTo("/admin", replace: true);
+            else
+                Navigation.NavigateTo("/customer/home", replace: true); @* FIXED: Corrected redirect path *@
+        }
+    }
+
     private async Task HandleLogin()
     {
-        var user = await AuthService.AuthenticateAsync(LoginEmail.Trim(), LoginPassword, LoginAsAdmin);
+        LoginError = "";  // Clear any previous error
+
+        // Call the updated AuthService.SignIn method, which now returns User?
+        var user = await AuthService.SignIn(LoginEmail.Trim(), LoginPassword, LoginAsAdmin); @* FIXED: Corrected method call and removed AuthenticateAsync *
+        
         if (user == null)
         {
-            LoginError = "Invalid credentials for the selected role.";
+            LoginError = "Invalid credentials. Please check your username and password.";
             return;
         }
 
-        // Always route by selected role
-        if (LoginAsAdmin)
+        // Then check if the user's role matches their login attempt
+        if (LoginAsAdmin && !user.IsAdmin)
+        {
+            LoginError = "This account does not have admin privileges. Please login as a customer.";
+            // User was briefly signed in during the check, so we sign them out to prevent future issues
+            AuthService.SignOut();
+            return;
+        }
+        else if (!LoginAsAdmin && user.IsAdmin)
+        {
+            LoginError = "This is an admin account. Please use the admin login option.";
+            AuthService.SignOut();
+            return;
+        }
+
+        // If we get here, everything is valid, redirect based on role
+        if (user.IsAdmin)
             Navigation.NavigateTo("/admin", replace: true);
         else
-            Navigation.NavigateTo("/customer", replace: true);
+            Navigation.NavigateTo("/customer/home", replace: true); @* FIXED: Corrected redirect path *@
     }
 
-    private void HandleForgotPassword() => Navigation.NavigateTo("/forgot-password");
+    private void HandleForgotPassword()
+    {
+        Navigation.NavigateTo("/forgot-password");
+    }
 }

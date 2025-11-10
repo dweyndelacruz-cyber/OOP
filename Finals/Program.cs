@@ -1,6 +1,7 @@
 using Finals.Components;
 using Finals.Data;
 using Finals.Services;
+using Microsoft.AspNetCore.Components.Authorization; // Needed for AuthenticationStateProvider
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,21 +11,40 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddAntiforgery(options => options.HeaderName = "X-XSRF-TOKEN");
 
-// register two separate sqlite DBs and the auth service
+// ----------------------------------------------------------------------
+// AUTHENTICATION AND AUTHORIZATION SERVICES
+// ----------------------------------------------------------------------
+
+// 1. Add Blazor's core Authorization system
+builder.Services.AddAuthorization(); 
+
+// 2. Register the custom provider to handle the user's login state and roles
+builder.Services.AddScoped<AuthenticationStateProvider, Finals.Services.CustomAuthStateProvider>();
+
+// 3. Register your AuthService
+builder.Services.AddScoped<AuthService>(); 
+
+// ----------------------------------------------------------------------
+// DATABASE SERVICES
+// ----------------------------------------------------------------------
+
+// Register two separate SQLite DBs
 builder.Services.AddDbContext<AdminDbContext>(options =>
-    options.UseSqlite("Data Source=admin.db"));
+    options.UseSqlite(builder.Configuration.GetConnectionString("AdminConnection") ?? "Data Source=admin.db"));
+
 builder.Services.AddDbContext<CustomerDbContext>(options =>
-    options.UseSqlite("Data Source=customer.db"));
-builder.Services.AddScoped<AuthService>();
+    options.UseSqlite(builder.Configuration.GetConnectionString("CustomerConnection") ?? "Data Source=customer.db"));
+
 
 var app = builder.Build();
 
-// ensure DBs exist
+// Ensure DBs exist on startup
 using (var scope = app.Services.CreateScope())
 {
     var adminDb = scope.ServiceProvider.GetRequiredService<AdminDbContext>();
     var customerDb = scope.ServiceProvider.GetRequiredService<CustomerDbContext>();
-    adminDb.Database.EnsureCreated();
+    // This will create the database file if it doesn't exist
+    adminDb.Database.EnsureCreated(); 
     customerDb.Database.EnsureCreated();
 }
 
@@ -36,8 +56,11 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
 app.UseRouting();
-app.UseAuthorization();
+
+// CRITICAL: Must be called before MapBlazorHub
+app.UseAuthorization(); 
 
 app.MapControllers();
 app.MapRazorPages();

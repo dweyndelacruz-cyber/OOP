@@ -1,0 +1,311 @@
+@page "/customer/feedback"
+@layout main.Components.Layout.MainLayout
+
+<div class="feedback-container">
+    <h2 class="page-title">💬 Customer Feedback</h2>
+
+    <div class="add-feedback">
+        <h3>Add Your Feedback</h3>
+        <div class="account-name">
+            <strong>@(isAnonymous ? "***" : "Username")</strong>
+        </div>
+        
+        <textarea @bind="newComment" placeholder="Your Comment" class="input-field"></textarea>
+        
+        <label class="checkbox-label">
+            <input type="checkbox" @bind="isAnonymous" />
+            Submit response anonymously
+        </label>
+
+        <div class="star-selection">
+            <button class="@(newStar == 1 ? "active" : "")" @onclick="() => newStar = 1">⭐1</button>
+            <button class="@(newStar == 2 ? "active" : "")" @onclick="() => newStar = 2">⭐2</button>
+            <button class="@(newStar == 3 ? "active" : "")" @onclick="() => newStar = 3">⭐3</button>
+            <button class="@(newStar == 4 ? "active" : "")" @onclick="() => newStar = 4">⭐4</button>
+            <button class="@(newStar == 5 ? "active" : "")" @onclick="() => newStar = 5">⭐5</button>
+
+        </div>
+        <button class="submit-btn" @onclick="SubmitFeedback">Submit Feedback</button>
+    </div>
+
+    <div class="star-filter">
+        <button class="@(selectedStar == 0 ? "active" : "")" @onclick="() => FilterReviews(0)">All ⭐</button>
+        <button class="@(selectedStar == 5 ? "active" : "")" @onclick="() => FilterReviews(5)">⭐5</button>
+        <button class="@(selectedStar == 4 ? "active" : "")" @onclick="() => FilterReviews(4)">⭐4</button>
+        <button class="@(selectedStar == 3 ? "active" : "")" @onclick="() => FilterReviews(3)">⭐3</button>
+        <button class="@(selectedStar == 2 ? "active" : "")" @onclick="() => FilterReviews(2)">⭐2</button>
+        <button class="@(selectedStar == 1 ? "active" : "")" @onclick="() => FilterReviews(1)">⭐1</button>
+    </div>
+
+    <div class="reviews">
+        @if (filteredReviews != null && filteredReviews.Any())
+        {
+            @foreach (var review in filteredReviews)
+            {
+                <div class="review-card">
+                    <h4>@review.Author</h4>
+                    <p>"@review.Comment"</p>
+                    <div class="rating" @onclick="() => FilterReviews(review.Star)">⭐ @review.Star</div>
+                </div>
+            }
+        }
+        else
+        {
+            <p class="no-reviews">No reviews found for this rating.</p>
+        }
+    </div>
+</div>
+
+@code {
+    private int selectedStar = 0;
+
+    private class Review
+    {
+        public string Author { get; set; } = "";
+        public string Comment { get; set; } = "";
+        public int Star { get; set; }
+    }
+
+    private List<Review> allReviews = new()
+    {
+        new Review { Author = "Anna", Comment = "Amazing water delivery! Always on time!", Star = 5 },
+        new Review { Author = "Mark", Comment = "Fantastic service and clean water!", Star = 5 },
+        new Review { Author = "Ella", Comment = "Very good experience!", Star = 4 },
+        new Review { Author = "Tom", Comment = "Delivery was okay, packaging could improve.", Star = 3 },
+        new Review { Author = "Cathy", Comment = "Not bad but delivery was a bit late.", Star = 3 },
+        new Review { Author = "Rico", Comment = "The bottle was slightly damaged.", Star = 2 },
+        new Review { Author = "Marie", Comment = "Terrible experience, never again.", Star = 1 },
+    };
+
+    private List<Review> filteredReviews = new();
+
+    private string newComment = "";
+    private int newStar = 0;
+    private bool isAnonymous = false;
+
+    protected override void OnInitialized()
+    {
+        filteredReviews = new(allReviews);
+    }
+
+    private void FilterReviews(int star)
+    {
+        selectedStar = star;
+
+        if (star == 0)
+            filteredReviews = new(allReviews);
+        else
+            filteredReviews = allReviews.Where(r => r.Star == star).ToList();
+
+        StateHasChanged();
+    }
+
+    private void SubmitFeedback()
+    {
+        if (!string.IsNullOrWhiteSpace(newComment))
+        {
+            string author = isAnonymous ? "Anonymous" : "Username";
+            allReviews.Add(new Review { Author = author, Comment = newComment, Star = newStar });
+            newComment = "";
+            newStar = 0;
+            isAnonymous = false;
+            FilterReviews(selectedStar);
+        }
+    }
+}
+
+<style>
+.feedback-container {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 2rem;
+    text-align: center;
+    color: white;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    background-image: url('/images/water-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.page-title {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    color: white;
+}
+
+.account-name {
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    color: #063970;
+}
+
+.add-feedback {
+    background: rgba(255,255,255,0.95);
+    color: #063970;
+    border-radius: 12px;
+    padding: 1.5rem;
+    width: 90%;
+    max-width: 1000px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    margin-bottom: 2rem;
+    text-align: left;
+}
+
+.add-feedback h3 {
+    margin-bottom: 1rem;
+    color: #063970;
+    text-align: center;
+}
+
+.input-field {
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: #1e90ff;
+}
+
+.checkbox-label {
+    display: block;
+    margin-bottom: 1rem;
+    color: #063970;
+    font-weight: bold;
+}
+
+.checkbox-label input {
+    margin-right: 0.5rem;
+}
+
+.star-selection {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.star-selection button {
+    background: #063970;
+    border: none;
+    color: white;
+    padding: 0.5rem 0.7rem;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.star-selection button:hover {
+    transform: scale(1.05);
+    background: #0A65C7;
+}
+
+.star-selection button.active {
+    background: linear-gradient(135deg, #0b63c5, #1e90ff);
+    border: none;
+    
+}
+
+.submit-btn {
+    background: linear-gradient(135deg, #00A3A3, #2eb2ff);
+    border: linear-gradient(135deg, #2eabff, #00A3A3);
+    color: white;
+    padding: 0.7rem 1.5rem;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: block;
+    margin: 0 auto;
+}
+
+.submit-btn:hover {
+    transform: scale(1.05);
+    background: linear-gradient(135deg, #4b8eda, #00A3A3);
+    box-shadow: 120px 80px 40px 20px linear-gradient(135deg, #063970, #1e90ff);
+}
+
+.star-filter {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    margin-bottom: 2rem;
+    width: 90%;
+    max-width: 1000px;
+}
+
+.star-filter button {
+    background: linear-gradient(135deg, #0b63c5, #1e90ff);
+    border: none;
+    color: white;
+    padding: 0.7rem 1rem;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.star-filter button:hover {
+    transform: scale(1.05);
+    background: #1e90ff;
+}
+
+.star-filter button.active {
+    background: #063970;
+    box-shadow: 0 0 10px rgba(6, 57, 112, 0.8);
+}
+
+
+.reviews {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+    width: 90%;
+    max-width: 1000px;
+}
+
+.review-card {
+    background: rgba(255,255,255,0.95);
+    color: #063970;
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    width: 100%;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    text-align: left;
+    transition: transform 0.2s;
+}
+
+.review-card:hover {
+    transform: scale(1.03);
+}
+
+.review-card h4 {
+    margin-bottom: 0.4rem;
+    color: #063970;
+}
+
+.rating {
+    color: #ffcc00;
+    margin-top: 0.3rem;
+    cursor: pointer;
+}
+
+.no-reviews {
+    font-style: italic;
+    color: #e0f1ff;
+}
+</style>

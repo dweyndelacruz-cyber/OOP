@@ -1,0 +1,239 @@
+@page "/customer/order-history"
+@layout main.Components.Layout.MainLayout
+
+<div class="page-container">
+    <h2 class="page-title">⏰ Order History</h2>
+
+    <div class="user-info">
+        👤 <strong>Welcome, @CurrentUser!</strong>
+        @if (UserRole == "Admin")
+        {
+            <span class="role-badge admin">Administrator</span>
+        }
+        else
+        {
+            <span class="role-badge customer">Customer</span>
+        }
+    </div>
+
+    <table class="order-table">
+        <thead>
+            <tr>
+                @if (UserRole == "Admin")
+                {
+                    <th>Order ID</th>
+                }
+                <th>Customer</th>
+                <th>Gallon Type</th>
+                <th>Quantity</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Out for Delivery</th>
+                <th>Time Delivered</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in orders)
+            {
+                <tr>
+                    @if (UserRole == "Admin")
+                    {
+                        <td>@order.Id</td>
+                    }
+                    <td>@order.Customer</td>
+                    <td>@order.GallonType</td>
+                    <td>@order.Quantity</td>
+                    <td>₱@order.Total.ToString("N2")</td>
+                    <td>
+                        <span class="@GetStatusClass(order.Status)">@order.Status</span>
+                    </td>
+                    <td>@(order.OutForDelivery?.ToString("yyyy-MM-dd HH:mm") ?? "—")</td>
+                    <td>@(order.TimeDelivered?.ToString("yyyy-MM-dd HH:mm") ?? "—")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    private string UserRole = "Customer"; // Fixed to Customer
+    private string CurrentUser = "Customer"; // This should come from authentication
+    private List<OrderModel> orders = new();
+
+    protected override void OnInitialized()
+    {
+        var allOrders = new List<OrderModel>
+        {
+            new() {
+                Id = "ORD-001",
+                Customer = "Anna Cruz",
+                GallonType = "Round Gallon",
+                Quantity = 2,
+                Total = 240.00m,
+                Status = "Delivered",
+                OutForDelivery = new DateTime(2025, 9, 30, 9, 15, 0),
+            },
+            new() {
+                Id = "ORD-002",
+                Customer = "Marco Diaz",
+                GallonType = "Slim Gallon",
+                Quantity = 1,
+                Total = 120.00m,
+                Status = "Processing",
+                OutForDelivery = new DateTime(2025, 10, 2, 11, 30, 0),
+            },
+            new() {
+                Id = "ORD-003",
+                Customer = "Current Customer", // This will show for the logged-in customer
+                GallonType = "Round Gallon",
+                Quantity = 3,
+                Total = 360.00m,
+                Status = "Pending"
+            }
+        };
+
+        // For demo, show orders for "Current Customer"
+        // In real app, this would be the actual logged-in user
+        orders = allOrders.Where(o => o.Customer == "Current Customer").ToList();
+
+        // Auto-calculate delivered time (+1 hour)
+        foreach (var o in orders)
+        {
+            if (o.Status == "Delivered" && o.OutForDelivery.HasValue)
+                o.TimeDelivered = o.OutForDelivery.Value.AddHours(1);
+        }
+
+        // Sort newest first
+        orders = orders.OrderByDescending(o => o.OutForDelivery ?? o.TimeDelivered ?? DateTime.MinValue).ToList();
+    }
+
+    private string GetStatusClass(string status) => status switch
+    {
+        "Delivered" => "status-delivered",
+        "Processing" => "status-processing",
+        "Pending" => "status-pending",
+        _ => ""
+    };
+
+    public class OrderModel
+    {
+        public string Id { get; set; } = "";
+        public string Customer { get; set; } = "";
+        public string GallonType { get; set; } = "";
+        public int Quantity { get; set; }
+        public decimal Total { get; set; }
+        public string Status { get; set; } = "";
+        public DateTime? OutForDelivery { get; set; }
+        public DateTime? TimeDelivered { get; set; }
+    }
+}
+
+<style>
+.page-container {
+    padding: 2rem;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow-y: auto;
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(10px);
+    background-image: url('/images/water-bg.jpg');
+    background-size: cover;
+    background-position: center;
+}
+
+.page-title {
+    margin-bottom: 1rem;
+    font-size: 1.8rem;
+}
+
+/* Logged-in user info */
+.user-info {
+    margin-bottom: 1.5rem;
+    background: rgba(255,255,255,0.15);
+    padding: 0.8rem 1.5rem;
+    border-radius: 10px;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.role-badge {
+    padding: 0.3rem 0.8rem;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 0.85rem;
+}
+
+.role-badge.admin {
+    background: #007acc;
+    color: white;
+}
+
+.role-badge.customer {
+    background: #28a745;
+    color: white;
+}
+
+.order-table {
+    width: 90%;
+    max-width: 1100px;
+    border-collapse: collapse;
+    text-align: center;
+    background: rgba(255,255,255,0.9);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    margin: 0;
+}
+
+.order-table th, .order-table td {
+    padding: 1rem;
+    color: #002f5f;
+}
+
+.order-table th {
+    background: #007acc;
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.order-table tr:nth-child(even) {
+    background: rgba(0, 0, 0, 0.03);
+}
+
+.order-table tr:hover {
+    background: rgba(0, 122, 204, 0.08);
+}
+
+/* Status Styles */
+.status-delivered {
+    color: #155724;
+    background: #d4edda;
+    padding: 0.3rem 0.8rem;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+.status-processing {
+    color: #856404;
+    background: #fff3cd;
+    padding: 0.3rem 0.8rem;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+.status-pending {
+    color: #721c24;
+    background: #f8d7da;
+    padding: 0.3rem 0.8rem;
+    border-radius: 8px;
+    font-weight: bold;
+}
+</style>

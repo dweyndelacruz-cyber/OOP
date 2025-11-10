@@ -1,0 +1,546 @@
+@page "/customer/place-order"
+@layout main.Components.Layout.MainLayout
+@inject NavigationManager Navigation
+
+<div class="page-container">
+    <h2 class="page-title">🛒 Place Your Order</h2>
+
+    <div class="user-info">
+        👤 <strong>Welcome, @CurrentUser!</strong>
+        <span class="role-badge customer">Customer</span>
+    </div>
+
+    <!-- Order Form Section -->
+    <div class="order-form-section">
+        <h3>📝 Order Details</h3>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Gallon Type</label>
+                <select class="form-select" @bind="SelectedGallonType">
+                    <option value="">Select Gallon Type</option>
+                    <option value="Round Gallon">Round Gallon</option>
+                    <option value="Slim Gallon">Slim Gallon</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Quantity</label>
+                <input class="form-input" type="number" @bind="Quantity" min="1" max="10" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Delivery Address</label>
+            <textarea class="form-textarea" @bind="DeliveryAddress" placeholder="Enter your complete delivery address"></textarea>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Preferred Delivery Date</label>
+                <input class="form-input" type="date" @bind="DeliveryDate" @bind:format="yyyy-MM-dd" />
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Preferred Time</label>
+                <select class="form-select" @bind="DeliveryTime">
+                    <option value="">Select Time</option>
+                    <option value="09:00-12:00">Morning (9:00 AM - 12:00 PM)</option>
+                    <option value="13:00-17:00">Afternoon (1:00 PM - 5:00 PM)</option>
+                    <option value="18:00-21:00">Evening (6:00 PM - 9:00 PM)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="order-summary">
+            <h4>💰 Order Summary</h4>
+            <div class="summary-row">
+                <span>Gallon Type:</span>
+                <span>@(string.IsNullOrEmpty(SelectedGallonType) ? "Not selected" : SelectedGallonType)</span>
+            </div>
+            <div class="summary-row">
+                <span>Quantity:</span>
+                <span>@Quantity</span>
+            </div>
+            <div class="summary-row">
+                <span>Price per Gallon:</span>
+                <span>₱@PricePerGallon.ToString("N2")</span>
+            </div>
+            <div class="summary-row total">
+                <span><strong>Total Amount:</strong></span>
+                <span><strong>₱@TotalAmount.ToString("N2")</strong></span>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button class="btn-primary" @onclick="SubmitOrder" disabled="@(!CanPlaceOrder)">
+                📦 Place Order
+            </button>
+            <button class="btn-secondary" @onclick="ClearForm">
+                🗑️ Clear Form
+            </button>
+        </div>
+    </div>
+
+    <!-- Recent Orders Preview -->
+    <div class="recent-orders">
+        <h3>📋 Your Recent Orders</h3>
+        @if (RecentOrders.Any())
+        {
+            <table class="order-table-preview">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Gallon Type</th>
+                        <th>Quantity</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in RecentOrders.Take(3))
+                    {
+                        <tr>
+                            <td>@order.Id</td>
+                            <td>@order.GallonType</td>
+                            <td>@order.Quantity</td>
+                            <td>₱@order.Total.ToString("N2")</td>
+                            <td>
+                                <span class="@GetStatusClass(order.Status)">@order.Status</span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p class="no-orders">No recent orders found.</p>
+        }
+    </div>
+</div>
+
+@code {
+    private string CurrentUser = "Customer"; // This would come from authentication
+    private string SelectedGallonType = "";
+    private int Quantity = 1;
+    private string DeliveryAddress = "";
+    private DateTime DeliveryDate = DateTime.Today.AddDays(1);
+    private string DeliveryTime = "";
+    
+    private decimal PricePerGallon = 120.00m;
+    private decimal TotalAmount => Quantity * PricePerGallon;
+    
+    private bool CanPlaceOrder => 
+        !string.IsNullOrEmpty(SelectedGallonType) && 
+        Quantity > 0 && 
+        !string.IsNullOrEmpty(DeliveryAddress) && 
+        !string.IsNullOrEmpty(DeliveryTime) &&
+        DeliveryDate >= DateTime.Today;
+
+    private List<OrderModel> RecentOrders = new();
+
+    protected override void OnInitialized()
+    {
+        // Load recent orders for the current user
+        LoadRecentOrders();
+    }
+
+    private void LoadRecentOrders()
+    {
+        // Sample recent orders data
+        RecentOrders = new List<OrderModel>
+        {
+            new() {
+                Id = "ORD-003",
+                GallonType = "Round Gallon",
+                Quantity = 2,
+                Total = 240.00m,
+                Status = "Delivered",
+                OrderDate = DateTime.Today.AddDays(-2)
+            },
+            new() {
+                Id = "ORD-002",
+                GallonType = "Slim Gallon",
+                Quantity = 1,
+                Total = 120.00m,
+                Status = "Processing",
+                OrderDate = DateTime.Today.AddDays(-1)
+            },
+            new() {
+                Id = "ORD-001",
+                GallonType = "Round Gallon",
+                Quantity = 3,
+                Total = 360.00m,
+                Status = "Pending",
+                OrderDate = DateTime.Today
+            }
+        };
+    }
+
+    private async Task SubmitOrder()
+    {
+        if (!CanPlaceOrder) return;
+
+        try
+        {
+            // Create new order
+            var newOrder = new OrderModel
+            {
+                Id = $"ORD-{(RecentOrders.Count + 100):D3}",
+                Customer = CurrentUser,
+                GallonType = SelectedGallonType,
+                Quantity = Quantity,
+                Total = TotalAmount,
+                Status = "Pending",
+                DeliveryAddress = DeliveryAddress,
+                DeliveryDate = DeliveryDate,
+                DeliveryTime = DeliveryTime,
+                OrderDate = DateTime.Now
+            };
+
+            // Add to recent orders (in real app, this would save to database)
+            RecentOrders.Insert(0, newOrder);
+            
+            // Show success message
+            Console.WriteLine($"✅ Order placed successfully: {newOrder.Id}");
+            
+            // Clear form after successful order
+            ClearForm();
+            
+            // Refresh the UI
+            StateHasChanged();
+            
+            // Show success notification (you can replace this with a toast notification)
+            await ShowSuccessMessage();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Error placing order: {ex.Message}");
+        }
+    }
+
+    private void ClearForm()
+    {
+        SelectedGallonType = "";
+        Quantity = 1;
+        DeliveryAddress = "";
+        DeliveryDate = DateTime.Today.AddDays(1);
+        DeliveryTime = "";
+        StateHasChanged();
+    }
+
+    private async Task ShowSuccessMessage()
+    {
+        // You can implement a toast notification here
+        // For now, we'll just log to console
+        Console.WriteLine("Order placed successfully!");
+        await Task.CompletedTask; // FIX: Added this line
+    }
+
+    private string GetStatusClass(string status) => status switch
+    {
+        "Delivered" => "status-delivered",
+        "Processing" => "status-processing",
+        "Pending" => "status-pending",
+        _ => ""
+    };
+
+    public class OrderModel
+    {
+        public string Id { get; set; } = "";
+        public string Customer { get; set; } = "";
+        public string GallonType { get; set; } = "";
+        public int Quantity { get; set; }
+        public decimal Total { get; set; }
+        public string Status { get; set; } = "";
+        public string DeliveryAddress { get; set; } = "";
+        public DateTime DeliveryDate { get; set; }
+        public string DeliveryTime { get; set; } = "";
+        public DateTime OrderDate { get; set; }
+    }
+}
+
+<style>
+.page-container {
+    padding: 2rem;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow-y: auto;
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(10px);
+    background-image: url('/images/water-bg.jpg');
+    background-size: cover;
+    background-position: center;
+}
+
+.page-title {
+    margin-bottom: 1rem;
+    font-size: 1.8rem;
+}
+
+/* Logged-in user info */
+.user-info {
+    margin-bottom: 1.5rem;
+    background: rgba(255,255,255,0.15);
+    padding: 0.8rem 1.5rem;
+    border-radius: 10px;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.role-badge {
+    padding: 0.3rem 0.8rem;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 0.85rem;
+}
+
+.role-badge.customer {
+    background: #28a745;
+    color: white;
+}
+
+/* Order Form Section */
+.order-form-section {
+    background: rgba(255,255,255,0.95);
+    color: #002f5f;
+    padding: 2rem;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 1000px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    margin-bottom: 2rem;
+}
+
+.order-form-section h3 {
+    margin-bottom: 1.5rem;
+    color: #063970;
+    text-align: center;
+}
+
+.form-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.form-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #063970;
+}
+
+.form-input, .form-select, .form-textarea {
+    padding: 0.8rem;
+    border: 2px solid #e1e5e9;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+    background: white;
+    color: #002f5f;
+}
+
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+    outline: none;
+    border-color: #063970;
+    box-shadow: 0 0 0 2px rgba(6, 57, 112, 0.1);
+}
+
+.form-textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+/* Order Summary */
+.order-summary {
+    background: rgba(6, 57, 112, 0.1);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin: 1.5rem 0;
+    border-left: 4px solid #063970;
+}
+
+.order-summary h4 {
+    margin-bottom: 1rem;
+    color: #063970;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(6, 57, 112, 0.1);
+}
+
+.summary-row.total {
+    border-bottom: none;
+    border-top: 2px solid #063970;
+    font-size: 1.1rem;
+    margin-top: 0.5rem;
+    padding-top: 1rem;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.btn-primary, .btn-secondary {
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 150px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #063970, #04214a);
+    color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: linear-gradient(135deg, #04214a, #031a38);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(6, 57, 112, 0.3);
+}
+
+.btn-primary:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #545b62;
+    transform: translateY(-2px);
+}
+
+/* Recent Orders Preview */
+.recent-orders {
+    background: rgba(255,255,255,0.95);
+    color: #002f5f;
+    padding: 2rem;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 1000px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.recent-orders h3 {
+    margin-bottom: 1.5rem;
+    color: #063970;
+    text-align: center;
+}
+
+.order-table-preview {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.order-table-preview th, .order-table-preview td {
+    padding: 1rem;
+    color: #002f5f;
+    border-bottom: 1px solid #e1e5e9;
+}
+
+.order-table-preview th {
+    background: #007acc;
+    color: white;
+    font-weight: bold;
+}
+
+.order-table-preview tr:hover {
+    background: rgba(0, 122, 204, 0.05);
+}
+
+/* Status Styles */
+.status-delivered {
+    color: #155724;
+    background: #d4edda;
+    padding: 0.3rem 0.8rem;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 0.85rem;
+}
+
+.status-processing {
+    color: #856404;
+    background: #fff3cd;
+    padding: 0.3rem 0.8rem;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 0.85rem;
+}
+
+.status-pending {
+    color: #721c24;
+    background: #f8d7da;
+    padding: 0.3rem 0.8rem;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 0.85rem;
+}
+
+.no-orders {
+    text-align: center;
+    color: #6c757d;
+    font-style: italic;
+    padding: 2rem;
+}
+
+/* Responsive Design */
+@@media (max-width: 768px) {
+    .form-row {
+        flex-direction: column;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+    }
+    
+    .btn-primary, .btn-secondary {
+        width: 100%;
+    }
+    
+    .order-table-preview {
+        font-size: 0.8rem;
+    }
+    
+    .order-table-preview th, .order-table-preview td {
+        padding: 0.5rem;
+    }
+}
+</style>

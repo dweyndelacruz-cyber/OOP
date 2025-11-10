@@ -1,0 +1,148 @@
+@page "/admin/about"
+@layout main.Components.AdminLayout.AdminLayout
+
+<div class="about-container">
+    <h2 class="page-title">👥 About Us</h2>
+    <div class="about-description">
+        Welcome to our Water Station Online Appointment!
+    <p>
+        We are fully dedicated to serving you with high-quality water delivered to your home. Our objective is to keep you and your family hydrated with clean, healthy water while offering the convenience of home delivery. 
+        Customers can use the website to easily select the type and quantity of water they require, designate their preferred delivery time, and track their orders without having to visit the real shop. This website demonstrates our dedication to enhancing customer service, maintaining accessibility, and ensuring timely delivery of safe, high-quality drinking water.
+    </p>
+    <p>
+        We aim to make water refill services more convenient and efficient for both customers and business owners. Through this system, customers no longer need to personally visit the water station to pay or drop off empty gallons. At the same time, delivery riders can avoid unnecessary trips when no one is available at home or when the customer does not require a refill yet.
+    </p>
+        Thank you for selecting us as your reliable water supply partner!
+    </div>
+    <h2 class="page-title">👤 Members</h2>
+    <table class="members-table">
+    <tr>
+        <th>Photo</th>
+        <th>Name</th>
+    </tr>
+    <tr>
+        <td><img src="https://media.discordapp.net/attachments/1015522588337901639/1432166288708341890/received_2525850574446395.jpg?ex=6900104b&is=68febecb&hm=b1a8accf0455faf8d281667fb3d70d419c3bb925817bc7ee3ba57992109d0bd1&=&format=webp&width=626&height=793" /></td>
+        <td>Dela Cruz, Dwyane Allen F.</td>
+    </tr>
+    <tr>
+        <td><img src="https://media.discordapp.net/attachments/1015522588337901639/1432166287655702629/received_1286553052943207.jpg?ex=6900104b&is=68febecb&hm=ef9dfee8e9cd94a826b902bd676cd03f7b92ebe2472ac0825023ca2210df5884&=&format=webp" /></td>
+        <td>Gungon, John Andrew N.</td>
+    </tr>
+    <tr>
+        <td><img src="https://media.discordapp.net/attachments/1015522588337901639/1432166288330981387/received_1070051985208728.jpg?ex=6900104b&is=68febecb&hm=deb98796f55782c72a47cec1e35c063097b1fe8188ab039dcbd7af8a30af6ba0&=&format=webp&width=580&height=793" /></td>
+        <td>Natividad, Steven Zeddriq M.</td></tr>
+    <tr>
+        <td><img src="https://media.discordapp.net/attachments/1015522588337901639/1432166289136418936/received_1337779687873194.jpg?ex=6900104b&is=68febecb&hm=d6dc5176819967e928b8d2f57d68e08756c36a160a86e2f6fadada08968b121b&=&format=webp&width=696&height=793" /></td>
+        <td>Respicio, Roven Jules B.</td>
+    </tr>
+    <tr>
+        <td><img src="https://media.discordapp.net/attachments/1015522588337901639/1432166289522167899/received_1284797016754492.jpg?ex=6900104b&is=68febecb&hm=4522244f04d996870e0a83c8146152a3351f947b750f97b049d736b111f35b9d&=&format=webp&width=588&height=793" /></td>
+        <td>Ting, Aljiemer A.</td>
+    </tr>
+    <tr>
+        <td><img src="https://media.discordapp.net/attachments/1015522588337901639/1432166337249284227/IMG_20251027_083649_406.jpg?ex=69001057&is=68febed7&hm=46f82d0f0faaad62d47a4d9ddcdd4754c48ed1a84af309fec2979dd7f6456417&=&format=webp" /></td>
+        <td>Tolentino, Angela D.</td>
+    </tr>
+    </table>
+</div>
+
+<style>
+.about-container {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 2rem;
+    text-align: center;
+    color: white;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    background-image: url('/images/water-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.page-title {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    color: white;
+}
+
+.about-description {
+    background: rgba(255,255,255,0.95);
+    color: #063970;
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    width: 70%;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    text-align: justify;
+    transition: transform 0.2s;
+}
+
+.about-description p {
+    text-align: justify;
+    text-indent: 40px;
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+/* Members Table Styling */
+.members-table {
+    width: 70%;
+    border-collapse: collapse;
+    background: rgba(255,255,255,0.95);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    overflow: hidden;
+    margin-top: 1rem;
+}
+
+/* Table Header */
+.members-table thead {
+    background-color: #063970;
+    color: white;
+}
+
+.members-table th {
+    padding: 1rem;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Table Body */
+.members-table td {
+    padding: 1.2rem 2rem;
+    vertical-align: middle;
+    color: #063970;
+    font-size: 1.1rem;
+    line-height: 1.4;
+    border-top: 1px solid rgba(0,0,0,0.1);
+}
+
+/* Equal width distribution */
+.members-table td:first-child {
+    width: 50%;
+    text-align: center;
+}
+
+.members-table td:last-child {
+    width: 50%;
+    text-align: center;
+    padding-left: 2rem; /* consistent spacing from image */
+}
+
+/* Image Styling */
+.members-table img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+</style>

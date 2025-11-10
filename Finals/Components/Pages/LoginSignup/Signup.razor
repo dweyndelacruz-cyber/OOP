@@ -451,7 +451,7 @@
                 </div>
             </div>
 
-            <!-- Row 3: Contact and Address -->
+            <!-- Row 3: Contact -->
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">Contact number</label>
@@ -543,14 +543,16 @@
     private string ConfirmPassword { get; set; } = "";
     private bool AgreeTerms { get; set; } = false;
     private bool IsAdmin { get; set; } = false;
+    
+    // Address components
     private string HouseStreet { get; set; } = "";
     private string Brgy { get; set; } = "";
     private string City { get; set; } = "Navotas City";
 
-    // Add the missing Address property referenced by the code/markup
+    // Full Address property (calculated before submission)
     private string Address { get; set; } = "";
 
-    // Add missing bound fields used by the markup
+    // Bound fields
     private string Username { get; set; } = "";
     private string ContactNumber { get; set; } = "";
 
@@ -563,6 +565,7 @@
         SignupMessage = "";
         AccountCreated = false;
 
+        // --- Validation ---
         if (!AgreeTerms)
         {
             SignupMessage = "Please agree to the Terms and Conditions.";
@@ -575,18 +578,32 @@
             return;
         }
 
-        if (string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
+        if (string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password) || 
+            string.IsNullOrWhiteSpace(FullName) || string.IsNullOrWhiteSpace(Username) ||
+            string.IsNullOrWhiteSpace(ContactNumber) || string.IsNullOrWhiteSpace(HouseStreet) ||
+            string.IsNullOrWhiteSpace(Brgy))
         {
-            SignupMessage = "Email and password are required.";
+            SignupMessage = "All fields are required.";
             return;
         }
+        // --- End Validation ---
 
-        Address = $"{HouseStreet}{(string.IsNullOrWhiteSpace(Brgy) ? "" : $", {Brgy}")}, {City}";
+        // Construct the full address string for storage
+        Address = $"{HouseStreet}, {Brgy}, {City}";
 
         try
         {
             // store account in DB but DO NOT log in or redirect here
-            await AuthService.RegisterUserAsync(Email.Trim(), Password, FullName.Trim(), IsAdmin);
+            // Updated to pass all collected user profile data to the AuthService
+            await AuthService.RegisterUserAsync(
+                Email.Trim(),
+                Password,
+                FullName.Trim(),
+                Username.Trim(),
+                ContactNumber.Trim(),
+                Address,
+                IsAdmin
+            );
 
             AccountCreated = true;
             // clear sensitive inputs
@@ -594,11 +611,14 @@
         }
         catch (Exception ex)
         {
-            SignupMessage = "Failed to create account: " + ex.Message;
+            // Catch the specific error and give a user-friendly message
+            string userFriendlyMessage = ex.Message.Contains("already in use")
+                ? "This email address is already registered."
+                : ex.Message;
+
+            SignupMessage = "Failed to create account: " + userFriendlyMessage;
         }
     }
 
-    // If ShowTerms is referenced in the markup, provide a minimal handler.
-    // Adjust to open a modal or navigate to a Terms page as needed.
     private void ShowTerms() => Navigation.NavigateTo("/terms");
 }

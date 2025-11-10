@@ -1,0 +1,170 @@
+@page "/admin/home"
+@layout main.Components.AdminLayout.AdminLayout
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+<div class="home-container">
+    <div class="quote-box">
+        <h2>@quote</h2>
+    </div>
+
+    <div class="sales-grid">
+        <div class="sales-card"><h3>Daily Sales</h3><p>₱1,200</p></div>
+        <div class="sales-card"><h3>Weekly Sales</h3><p>₱8,400</p></div>
+        <div class="sales-card"><h3>Monthly Sales</h3><p>₱36,000</p></div>
+        <div class="sales-card"><h3>Yearly Sales</h3><p>₱432,000</p></div>
+    </div>
+
+    <div class="chart-section">
+        <h3>📈 Sales Growth Overview</h3>
+        <canvas id="salesChart" width="600" height="300"></canvas>
+    </div>
+</div>
+
+@code {
+    private string quote = string.Empty;
+    private readonly string[] quotes =
+    {
+        "Every drop counts — keep pushing forward!",
+        "Success flows like water — steady and unstoppable.",
+        "Stay consistent, even when progress feels slow.",
+        "Hard work beats talent when talent doesn't work hard.",
+        "Be patient. Great results take time and persistence.",
+        "Each small effort adds up to something big.",
+        "You are not tired, you are just one step away from greatness."
+    };
+
+    protected override void OnInitialized()
+    {
+        var rand = new Random();
+        quote = quotes[rand.Next(quotes.Length)];
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("renderSalesChart");
+        }
+    }
+}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    window.renderSalesChart = () => {
+        const ctx = document.getElementById('salesChart');
+        if (!ctx) return;
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Sales (₱)',
+                    data: [300, 700, 400, 900, 1200, 800, 1500],
+                    backgroundColor: 'rgba(0, 123, 255, 0.3)',
+                    borderColor: '#007bff',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    pointBackgroundColor: '#00bfff'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: { ticks: { color: '#004c91' } },
+                    y: { ticks: { color: '#004c91' } }
+                }
+            }
+        });
+    };
+</script>
+
+<style>
+.home-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    color: #fff;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow-y: auto;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    background-image: url('/images/water-bg.jpg');
+    background-size: cover;
+    background-position: center;
+}
+
+.quote-box {
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(3px);
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    text-align: center;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    color: #004c91;
+    width: 90%;
+    max-width: 1000px;
+}
+
+.sales-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.2rem;
+    width: 90%;
+    max-width: 1000px;
+    margin-bottom: 3rem;
+}
+
+.sales-card {
+    background: rgba(255, 255, 255, 0.85);
+    color: #004c91;
+    border-radius: 12px;
+    padding: 1.2rem;
+    text-align: center;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+    transition: transform 0.2s ease;
+    margin: 0;
+}
+.sales-card:hover { transform: scale(1.05); }
+
+.chart-section {
+    background: rgba(255, 255, 255, 0.85);
+    color: #004c91;
+    padding: 1.5rem;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 1000px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    margin-bottom: 2rem;
+}
+.chart-section h3 {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+@@media (max-width: 768px) {
+    .search-row {
+        flex-direction: column;
+    }
+    
+    .search-field {
+        min-width: 100%;
+    }
+    
+    .order-table {
+        font-size: 0.8rem;
+    }
+    
+    .order-table th, .order-table td {
+        padding: 0.5rem;
+    }
+}
+</style>

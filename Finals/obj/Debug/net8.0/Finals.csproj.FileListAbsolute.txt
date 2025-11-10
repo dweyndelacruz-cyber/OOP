@@ -147,7 +147,6 @@
 /workspaces/OOP/Finals/obj/Debug/net8.0/staticwebassets/msbuild.buildTransitive.Finals.props
 /workspaces/OOP/Finals/obj/Debug/net8.0/staticwebassets.pack.json
 /workspaces/OOP/Finals/obj/Debug/net8.0/scopedcss/Components/AdminLayout/AdminLayout.razor.rz.scp.css
-/workspaces/OOP/Finals/obj/Debug/net8.0/scopedcss/Components/Layout/MainLayout.razor.rz.scp.css
 /workspaces/OOP/Finals/obj/Debug/net8.0/scopedcss/bundle/Finals.styles.css
 /workspaces/OOP/Finals/obj/Debug/net8.0/scopedcss/projectbundle/Finals.bundle.scp.css
 /workspaces/OOP/Finals/obj/Debug/net8.0/Finals.csproj.Up2Date

@@ -1,0 +1,38 @@
+/* _content/main/Components/AdminLayout/AdminLayout.razor.rz.scp.css */
+@inherits LayoutComponentBase
+
+<div class="sidebar">
+    <h2>Admin Dashboard</h2>
+    <nav>
+        <ul>
+            <li><NavLink href="/home" Match="NavLinkMatch.All">🏠 Home</NavLink></li>
+            <li><NavLink href="/orders">📦 Orders</NavLink></li>
+            <li><NavLink href="/feedback">💬 Feedback</NavLink></li>
+            <li><NavLink class="nav-link" href="/order-history"><span class="oi oi-list-rich" aria-hidden="true"></span> Order History</NavLink></li>
+            <li><NavLink href="/about">💬 About Us</NavLink></li>
+        </ul>
+    </nav>
+</div>
+
+<main class="main-content">
+    @Body
+</main>
+/* _content/main/Components/Layout/MainLayout.razor.rz.scp.css */
+#blazor-error-ui[b-5mirevxrv5] {
+    background: lightyellow;
+    bottom: 0;
+    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+    display: none;
+    left: 0;
+    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+}
+
+    #blazor-error-ui .dismiss[b-5mirevxrv5] {
+        cursor: pointer;
+        position: absolute;
+        right: 0.75rem;
+        top: 0.5rem;
+    }

@@ -1,0 +1,77 @@
+{
+  "Version": 1,
+  "Hash": "7vfIHsgEwx5UmIQ/SDDkwnjhofxMh2gfQtO/2ZbEEYI=",
+  "Source": "main",
+  "BasePath": "_content/main",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "main/wwwroot",
+      "Source": "main",
+      "ContentRoot": "/workspaces/OOP/main/wwwroot/",
+      "BasePath": "_content/main",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": [
+    {
+      "Identity": "/workspaces/OOP/main/obj/Debug/net8.0/scopedcss/bundle/main.styles.css",
+      "SourceId": "main",
+      "SourceType": "Computed",
+      "ContentRoot": "/workspaces/OOP/main/obj/Debug/net8.0/scopedcss/bundle/",
+      "BasePath": "_content/main",
+      "RelativePath": "main.styles.css",
+      "AssetKind": "All",
+      "AssetMode": "CurrentProject",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "ScopedCss",
+      "AssetTraitValue": "ApplicationBundle",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "/workspaces/OOP/main/obj/Debug/net8.0/scopedcss/bundle/main.styles.css"
+    },
+    {
+      "Identity": "/workspaces/OOP/main/obj/Debug/net8.0/scopedcss/projectbundle/main.bundle.scp.css",
+      "SourceId": "main",
+      "SourceType": "Computed",
+      "ContentRoot": "/workspaces/OOP/main/obj/Debug/net8.0/scopedcss/projectbundle/",
+      "BasePath": "_content/main",
+      "RelativePath": "main.bundle.scp.css",
+      "AssetKind": "All",
+      "AssetMode": "Reference",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "ScopedCss",
+      "AssetTraitValue": "ProjectBundle",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "/workspaces/OOP/main/obj/Debug/net8.0/scopedcss/projectbundle/main.bundle.scp.css"
+    },
+    {
+      "Identity": "/workspaces/OOP/main/wwwroot/app.css",
+      "SourceId": "main",
+      "SourceType": "Discovered",
+      "ContentRoot": "/workspaces/OOP/main/wwwroot/",
+      "BasePath": "_content/main",
+      "RelativePath": "app.css",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot/app.css"
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+@page "/debug/db"
+@using main.Data
+@using main.Models
+@using Microsoft.EntityFrameworkCore
+@inject AppDbContext DbContext
+
+<h3>Database Debug Info</h3>
+
+<button @onclick="LoadUsers" class="btn btn-primary">Load Users</button>
+
+@if (users.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Role</th>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Contact Number</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in users)
+            {
+                <tr>
+                    <td>@user.Id</td>
+                    <td>@user.Username</td>
+                    <td>@user.Role</td>
+                    <td>@user.FullName</td>
+                    <td>@user.Email</td>
+                    <td>@user.ContactNumber</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No users found in database.</p>
+}
+
+@code {
+    private List<User> users = new();
+
+    private async Task LoadUsers()
+    {
+        try
+        {
+            users = await DbContext.Users.ToListAsync();
+            Console.WriteLine($"📊 Loaded {users.Count} users from database");
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Error loading users: {ex.Message}");
+        }
+    }
+}
+
+<style>
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    background: white;
+}
+
+.table th, .table td {
+    padding: 0.75rem;
+    border: 1px solid #dee2e6;
+    text-align: left;
+}
+
+.table th {
+    background-color: #063970;
+    color: white;
+}
+
+.btn {
+    padding: 0.5rem 1rem;
+    background: #063970;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background: #04214a;
+}
+</style>

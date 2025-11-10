@@ -1,0 +1,699 @@
+@page "/signup"
+@inject NavigationManager Navigation
+@inject main.Services.IAuthService AuthService
+@layout main.Components.LSLayout.EmptyLayout
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+        background: url('https://learnandsupport.getolympus.com/sites/default/files/styles/hero_large/public/2020-10/amico_-_water_droplets_1.jpg?itok=kJ972xkJ') no-repeat center center fixed;
+        background-size: cover;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+    }
+
+    .signup-container {
+        display: flex;
+        max-width: 1100px;
+        width: 100%;
+        min-height: 650px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+        border-radius: 20px;
+        overflow: hidden;
+    }
+
+    .brand-section {
+        flex: 1;
+        background: linear-gradient(135deg, rgba(6, 57, 112, 0.92), rgba(4, 33, 74, 0.92));
+        color: white;
+        padding: 50px 35px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .brand-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('https://learnandsupport.getolympus.com/sites/default/files/styles/hero_large/public/2020-10/amico_-_water_droplets_1.jpg?itok=kJ972xkJ') no-repeat center center;
+        background-size: cover;
+        opacity: 0.18;
+        z-index: 0;
+    }
+
+    .brand-content {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: 100%;
+    }
+
+    .brand-title {
+        font-size: 42px;
+        font-weight: 800;
+        line-height: 1.1;
+        margin-bottom: 20px;
+        letter-spacing: 0.5px;
+    }
+
+    .brand-subtitle {
+        font-size: 20px;
+        opacity: 0.95;
+        font-weight: 600;
+        letter-spacing: 0.8px;
+        color: #a8d8ff;
+        margin-bottom: 30px;
+    }
+
+    .brand-tagline {
+        font-size: 16px;
+        opacity: 0.8;
+        font-style: italic;
+        line-height: 1.5;
+        border-left: 3px solid #a8d8ff;
+        padding-left: 15px;
+        margin-top: 30px;
+    }
+
+    .form-section {
+        flex: 1.2;
+        background: rgba(255, 255, 255, 0.97);
+        backdrop-filter: blur(15px);
+        padding: 40px 35px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-header {
+        margin-bottom: 25px;
+        text-align: center;
+    }
+
+    .form-title {
+        font-size: 26px;
+        font-weight: 700;
+        color: #04214a;
+        margin-bottom: 6px;
+    }
+
+    .form-subtitle {
+        color: #666;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    .form-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .form-row {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 12px;
+    }
+
+    .form-group {
+        flex: 1;
+        margin-bottom: 0;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 600;
+        color: #333;
+        font-size: 13px;
+        letter-spacing: 0.2px;
+    }
+
+    .form-input, .form-textarea, .form-select {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #e1e5e9;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.9);
+    }
+
+    .form-input:focus, .form-textarea:focus, .form-select:focus {
+        outline: none;
+        border-color: #063970;
+        box-shadow: 0 0 0 2px rgba(6, 57, 112, 0.1);
+        background: white;
+    }
+
+    .form-textarea {
+        min-height: 70px;
+        resize: vertical;
+        line-height: 1.4;
+        font-size: 14px;
+    }
+
+    .full-width {
+        width: 100%;
+    }
+
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 20px 0;
+        padding: 12px;
+        background: rgba(6, 57, 112, 0.04);
+        border-radius: 8px;
+        border-left: 3px solid #063970;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: #063970;
+        flex-shrink: 0;
+    }
+
+    .checkbox-group label {
+        font-size: 13px;
+        color: #555;
+        margin: 0;
+        line-height: 1.4;
+    }
+
+    .terms-link {
+        color: #063970;
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.3s;
+        font-size: 13px;
+    }
+
+    .terms-link:hover {
+        color: #04214a;
+        text-decoration: underline;
+    }
+
+    .form-actions {
+        margin-top: auto;
+        padding-top: 20px;
+    }
+
+    .signup-btn {
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(135deg, #063970, #04214a);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(6, 57, 112, 0.25);
+        letter-spacing: 0.3px;
+    }
+
+    .signup-btn:hover:not(:disabled) {
+        background: linear-gradient(135deg, #04214a, #031a38);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(6, 57, 112, 0.35);
+    }
+
+    .signup-btn:disabled {
+        background: #cccccc;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    .signup-btn:active {
+        transform: translateY(0);
+    }
+
+    .switch-link {
+        text-align: center;
+        font-size: 14px;
+        padding-top: 15px;
+        margin-top: 15px;
+        border-top: 1px solid #e1e5e9;
+    }
+
+    .switch-link a {
+        color: #063970;
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.3s;
+    }
+
+    .switch-link a:hover {
+        color: #04214a;
+        text-decoration: underline;
+    }
+
+    .water-drop {
+        position: absolute;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        animation: float 6s ease-in-out infinite;
+    }
+
+    .water-drop-1 {
+        width: 60px;
+        height: 60px;
+        top: 15%;
+        left: 10%;
+        animation-delay: 0s;
+    }
+
+    .water-drop-2 {
+        width: 45px;
+        height: 45px;
+        top: 65%;
+        right: 15%;
+        animation-delay: 2s;
+    }
+
+    .water-drop-3 {
+        width: 35px;
+        height: 35px;
+        bottom: 25%;
+        left: 20%;
+        animation-delay: 4s;
+    }
+
+    /* Error message styles */
+    .error-message {
+        background-color: #fee;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+        padding: 12px 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        animation: fadeIn 0.3s ease-in;
+    }
+
+    .error-icon {
+        font-size: 16px;
+        flex-shrink: 0;
+    }
+
+    .shake {
+        animation: shake 0.5s ease-in-out;
+    }
+
+    .input-error {
+        border-color: #dc3545 !important;
+    }
+
+    .checkbox-error {
+        border-left-color: #dc3545 !important;
+        background: rgba(220, 53, 69, 0.04) !important;
+    }
+
+    @@keyframes float {
+        0%, 100% {
+            transform: translateY(0) scale(1);
+            opacity: 0.3;
+        }
+        50% {
+            transform: translateY(-15px) scale(1.05);
+            opacity: 0.5;
+        }
+    }
+
+    @@keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @@keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+    }
+
+    @@media (max-width: 1024px) {
+        .signup-container {
+            max-width: 95%;
+            min-height: 600px;
+        }
+        
+        .brand-section {
+            padding: 40px 25px;
+        }
+        
+        .form-section {
+            padding: 35px 25px;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        body {
+            padding: 15px;
+        }
+
+        .signup-container {
+            flex-direction: column;
+            min-height: auto;
+            max-width: 500px;
+        }
+        
+        .brand-section {
+            padding: 30px 20px;
+            min-height: 200px;
+            text-align: center;
+        }
+        
+        .form-section {
+            padding: 30px 25px;
+        }
+
+        .form-row {
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .brand-title {
+            font-size: 32px;
+        }
+
+        .brand-subtitle {
+            font-size: 18px;
+        }
+
+        .form-title {
+            font-size: 22px;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        body {
+            padding: 10px;
+        }
+
+        .brand-section {
+            padding: 25px 15px;
+        }
+        
+        .form-section {
+            padding: 25px 20px;
+        }
+
+        .brand-title {
+            font-size: 28px;
+        }
+
+        .form-title {
+            font-size: 20px;
+        }
+
+        .form-input, .form-textarea, .form-select {
+            padding: 10px 12px;
+            font-size: 13px;
+        }
+    }
+</style>
+
+<div class="signup-container">
+    <!-- Left Brand Section -->
+    <div class="brand-section">
+        <div class="water-drop water-drop-1"></div>
+        <div class="water-drop water-drop-2"></div>
+        <div class="water-drop water-drop-3"></div>
+        <div class="brand-content">
+            <div class="brand-title">
+                Water Station<br />
+                Online Appointment
+            </div>
+            <div class="brand-subtitle">Pure Water, Pure Life</div>
+            <div class="brand-tagline">
+                Your trusted partner for clean, refreshing water delivered right to your doorstep
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Form Section -->
+    <div class="form-section">
+        <div class="form-header">
+            <h2 class="form-title">Sign up</h2>
+            <div class="form-subtitle">Create your account</div>
+        </div>
+
+        <!-- Error Message -->
+        @if (ShowError)
+        {
+            <div class="error-message @(ShouldShake ? "shake" : "")">
+                <span class="error-icon">⚠️</span>
+                <span>@ErrorMessage</span>
+            </div>
+        }
+
+        <div class="form-content">
+            <!-- Row 1: Fullname -->
+            <div class="form-group full-width">
+                <label class="form-label">Full Name</label>
+                <input class="form-input" 
+                       type="text" @bind="FullName" @oninput="ClearError" placeholder="Enter your Full Name" />
+            </div>
+
+            <!-- Row 2: Username and Email -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input class="form-input" 
+                           type="text" @bind="Username" @oninput="ClearError" placeholder="Choose username" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input class="form-input" 
+                           type="email" @bind="Email" @oninput="ClearError" placeholder="Enter email" />
+                </div>
+            </div>
+
+            <!-- Row 3: Contact -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Contact number</label>
+                    <input class="form-input" 
+                           type="tel" @bind="ContactNumber" @oninput="ClearError" placeholder="Phone number" />
+                </div>
+            </div>
+
+            <!-- Row 4: Role Selection -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Account Type</label>
+                    <select class="form-select" @bind="SelectedRole">
+                        <option value="Customer">Customer</option>
+                        <option value="Admin">Admin</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Address Section -->
+            <div class="form-group full-width">
+                <label class="form-label">Address</label>
+                <div class="form-row">
+                    <div class="form-group">
+                        <input class="form-input" 
+                               type="text" @bind="HouseStreet" @oninput="ClearError" placeholder="House no. and Street name" />
+                    </div>
+                    <div class="form-group">
+                        <select class="form-select" 
+                                @bind="Barangay" @oninput="ClearError">
+                            <option value="">Select Barangay</option>
+                            <option value="San Roque">San Roque</option>
+                            <option value="Tangos">Tangos</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <input class="form-input" type="text" value="Navotas City" disabled />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row 5: Password and Confirm Password -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input class="form-input" 
+                           type="password" @bind="Password" @oninput="ClearError" placeholder="Create password" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Confirm password</label>
+                    <input class="form-input" 
+                           type="password" @bind="ConfirmPassword" @oninput="ClearError" placeholder="Confirm password" />
+                </div>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="terms" @bind="AgreeTerms" @oninput="ClearError" />
+                <label for="terms">
+                    I agree to the <a href="#" class="terms-link" @onclick="ShowTerms">Terms and Conditions</a>
+                </label>
+            </div>
+
+            <div class="form-actions">
+                <button class="signup-btn" @onclick="HandleSignup" disabled="@IsLoading">
+                    @if (IsLoading)
+                    {
+                        <span>Creating Account...</span>
+                    }
+                    else
+                    {
+                        <span>Create account</span>
+                    }
+                </button>
+
+                <div class="switch-link">
+                    Already have an account? <a href="/login">Log in</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string FullName { get; set; } = "";
+    private string Username { get; set; } = "";
+    private string Email { get; set; } = "";
+    private string ContactNumber { get; set; } = "";
+    private string HouseStreet { get; set; } = "";
+    private string Barangay { get; set; } = "";
+    private string Password { get; set; } = "";
+    private string ConfirmPassword { get; set; } = "";
+    private string SelectedRole { get; set; } = "Customer";
+    private bool AgreeTerms { get; set; } = false;
+    
+    private string ErrorMessage { get; set; } = "";
+    private bool ShowError { get; set; } = false;
+    private bool ShouldShake { get; set; } = false; // ADD THIS LINE
+    private bool IsLoading { get; set; } = false;
+
+    private async Task HandleSignup()
+    {
+        // Clear errors
+        ShowError = false;
+        ShouldShake = false; // ADD THIS LINE
+        IsLoading = true;
+        StateHasChanged();
+
+        // Simple validation
+        if (string.IsNullOrWhiteSpace(FullName) || string.IsNullOrWhiteSpace(Username) || 
+            string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(ContactNumber) ||
+            string.IsNullOrWhiteSpace(HouseStreet) || string.IsNullOrWhiteSpace(Barangay) ||
+            string.IsNullOrWhiteSpace(Password))
+        {
+            ErrorMessage = "Please fill in all fields";
+            ShowError = true;
+            ShouldShake = true; // ADD THIS LINE
+            IsLoading = false;
+            StateHasChanged();
+            return;
+        }
+
+        if (Password != ConfirmPassword)
+        {
+            ErrorMessage = "Passwords don't match";
+            ShowError = true;
+            ShouldShake = true; // ADD THIS LINE
+            IsLoading = false;
+            StateHasChanged();
+            return;
+        }
+
+        if (!AgreeTerms)
+        {
+            ErrorMessage = "Please agree to terms and conditions";
+            ShowError = true;
+            ShouldShake = true; // ADD THIS LINE
+            IsLoading = false;
+            StateHasChanged();
+            return;
+        }
+
+        try
+        {
+            var newUser = new main.Models.User
+            {
+                FullName = FullName,
+                Username = Username,
+                Email = Email,
+                ContactNumber = ContactNumber,
+                HouseStreet = HouseStreet,
+                Barangay = Barangay,
+                City = "Navotas City",
+                Role = SelectedRole
+            };
+
+            bool success = await AuthService.RegisterUserAsync(newUser, Password);
+
+            if (success)
+            {
+                // SUCCESS - redirect to login
+                ErrorMessage = "Account created! Redirecting to login...";
+                ShowError = true;
+                ShouldShake = false; // ADD THIS LINE
+                StateHasChanged();
+                
+                await Task.Delay(2000);
+                Navigation.NavigateTo("/login");
+            }
+            else
+            {
+                ErrorMessage = "Username already exists";
+                ShowError = true;
+                ShouldShake = true; // ADD THIS LINE
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = "Registration error: " + ex.Message;
+            ShowError = true;
+            ShouldShake = true; // ADD THIS LINE
+        }
+
+        IsLoading = false;
+        StateHasChanged();
+    }
+
+    private void ShowTerms()
+    {
+        // TODO: Implement
+    }
+
+    // ADD THIS METHOD
+    private void ClearError()
+    {
+        if (ShowError)
+        {
+            ShowError = false;
+            StateHasChanged();
+        }
+    }
+}
